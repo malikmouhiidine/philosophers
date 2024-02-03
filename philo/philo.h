@@ -6,7 +6,7 @@
 /*   By: mmouhiid <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 10:58:12 by mmouhiid          #+#    #+#             */
-/*   Updated: 2024/02/02 20:09:30 by mmouhiid         ###   ########.fr       */
+/*   Updated: 2024/02/03 10:59:20 by mmouhiid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,16 @@ typedef struct s_program
 	size_t			time_to_sleep;
 	int				philos_meals;
 	int				philos_ids[MAX_PHILOS];
+	struct timeval	last_meal_time[MAX_PHILOS];
 	pthread_t		philos[MAX_PHILOS];
 	pthread_mutex_t	forks[MAX_PHILOS];
 }	t_program;
+
+typedef struct s_hack
+{
+	int			*philo_id_ptr;
+	t_program	*program_ptr;
+}	t_hack;
 
 int		msleep(size_t msec);
 int		ft_atoi(const char *nptr);
