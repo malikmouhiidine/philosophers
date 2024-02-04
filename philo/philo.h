@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmouhiid <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: mmouhiid <mmouhiid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 10:58:12 by mmouhiid          #+#    #+#             */
-/*   Updated: 2024/02/03 10:59:20 by mmouhiid         ###   ########.fr       */
+/*   Updated: 2024/02/04 09:01:44 by mmouhiid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 typedef struct s_program
 {
 	int				philos_num;
+	int				dead_flag;
 	size_t			time_to_die;
 	size_t			time_to_eat;
 	size_t			time_to_sleep;
