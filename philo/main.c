@@ -6,7 +6,7 @@
 /*   By: mmouhiid <mmouhiid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 10:57:15 by mmouhiid          #+#    #+#             */
-/*   Updated: 2024/02/05 11:38:12 by mmouhiid         ###   ########.fr       */
+/*   Updated: 2024/02/05 12:32:18 by mmouhiid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,8 @@ void	*philosopher(void *hack)
 	while (!program->dead_flag)
 	{
 		pthread_mutex_lock(&program->forks[philo_id]);
-		printf("%zu %d has taken a fork\n", get_time() - program->start_time, philo_id + 1);
+		if (!program->dead_flag)
+			printf("%zu %d has taken a fork\n", get_time() - program->start_time, philo_id + 1);
 		if (program->philos_num == 1)
 		{
 			while (!program->dead_flag)
@@ -31,16 +32,20 @@ void	*philosopher(void *hack)
 		}
 		pthread_mutex_lock(&program->forks[(philo_id + 1)
 			% program->philos_num]);
-		printf("%zu %d has taken a fork\n", get_time() - program->start_time, philo_id + 1);
+		if (!program->dead_flag)
+			printf("%zu %d has taken a fork\n", get_time() - program->start_time, philo_id + 1);
 		program->last_meal_time[philo_id] = get_time();
-		printf("%zu %d is eating\n", get_time() - program->start_time, philo_id + 1);
+		if (!program->dead_flag)
+			printf("%zu %d is eating\n", get_time() - program->start_time, philo_id + 1);
 		msleep(program->time_to_eat);
 		pthread_mutex_unlock(&program->forks[(philo_id + 1)
 			% program->philos_num]);
 		pthread_mutex_unlock(&program->forks[philo_id]);
-		printf("%zu %d is sleeping\n", get_time() - program->start_time, philo_id + 1);
+		if (!program->dead_flag)
+			printf("%zu %d is sleeping\n", get_time() - program->start_time, philo_id + 1);
 		msleep(program->time_to_sleep);
-		printf("%zu %d is thinking\n", get_time() - program->start_time, philo_id + 1);
+		if (!program->dead_flag)
+			printf("%zu %d is thinking\n", get_time() - program->start_time, philo_id + 1);
 	}
 	return (NULL);
 }
@@ -60,7 +65,7 @@ void	*waiter(void *program_ptr)
 		{
 			if ((time - program->last_meal_time[i]) > program->time_to_die)
 			{
-				printf("%zu %d died\n", time - program->start_time - 1, i + 1);
+				printf("%zu %d died\n", time - program->start_time, i + 1);
 				program->dead_flag = 1;
 				return (NULL);
 			}
