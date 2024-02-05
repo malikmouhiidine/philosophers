@@ -6,23 +6,29 @@
 /*   By: mmouhiid <mmouhiid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 11:00:40 by mmouhiid          #+#    #+#             */
-/*   Updated: 2024/02/02 15:28:27 by mmouhiid         ###   ########.fr       */
+/*   Updated: 2024/02/05 11:24:01 by mmouhiid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
+size_t	get_time(void)
+{
+	struct timeval	current_time;
+
+	gettimeofday(&current_time, NULL);
+	return ((size_t)(current_time.tv_sec * 1000 + current_time.tv_usec / 1000));
+}
+
 // the while for handling 
 // any interruptions and retry
 int	msleep(size_t msec)
 {
-	useconds_t	usec;
+	size_t	time;
 
-	usec = msec * 1000;
-	if (msec < 0 || msec > (LONG_MAX / 1000))
-		return (-1);
-	while (usleep(usec) == -1)
-		;
+	time = get_time();
+	while (get_time() - time < msec)
+		usleep(500);
 	return (0);
 }
 

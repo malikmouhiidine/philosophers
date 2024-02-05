@@ -6,7 +6,7 @@
 /*   By: mmouhiid <mmouhiid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 10:57:15 by mmouhiid          #+#    #+#             */
-/*   Updated: 2024/02/04 09:13:32 by mmouhiid         ###   ########.fr       */
+/*   Updated: 2024/02/05 11:38:12 by mmouhiid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,39 +15,57 @@
 void	*philosopher(void *hack)
 {
 	int				philo_id;
-	struct timeval	current_time;
-	long			time_since_last_meal;
 	t_program		*program;
 
 	philo_id = *((int *)(((t_hack *)hack)->philo_id_ptr));
 	program = ((t_program *)(((t_hack *)hack)->program_ptr));
 	while (!program->dead_flag)
 	{
-		gettimeofday(&current_time, NULL);
-		time_since_last_meal = (current_time.tv_sec * 1000
-				+ current_time.tv_usec / 1000)
-			- (program->last_meal_time[philo_id].tv_sec * 1000
-				+ program->last_meal_time[philo_id].tv_usec / 1000);
-		if (time_since_last_meal > program->time_to_die)
-		{
-			printf("%d died\n", philo_id + 1);
-			program->dead_flag = 1;
-			break ;
-		}
 		pthread_mutex_lock(&program->forks[philo_id]);
-		printf("%d has taken a fork\n", philo_id + 1);
+		printf("%zu %d has taken a fork\n", get_time() - program->start_time, philo_id + 1);
+		if (program->philos_num == 1)
+		{
+			while (!program->dead_flag)
+				;
+			return (NULL);
+		}
 		pthread_mutex_lock(&program->forks[(philo_id + 1)
 			% program->philos_num]);
-		printf("%d has taken a fork\n", philo_id + 1);
-		printf("%d is eating\n", philo_id + 1);
-		gettimeofday(&program->last_meal_time[philo_id], NULL);
+		printf("%zu %d has taken a fork\n", get_time() - program->start_time, philo_id + 1);
+		program->last_meal_time[philo_id] = get_time();
+		printf("%zu %d is eating\n", get_time() - program->start_time, philo_id + 1);
 		msleep(program->time_to_eat);
-		pthread_mutex_unlock(&program->forks[philo_id]);
 		pthread_mutex_unlock(&program->forks[(philo_id + 1)
 			% program->philos_num]);
-		printf("%d is sleeping\n", philo_id + 1);
+		pthread_mutex_unlock(&program->forks[philo_id]);
+		printf("%zu %d is sleeping\n", get_time() - program->start_time, philo_id + 1);
 		msleep(program->time_to_sleep);
-		printf("%d is thinking\n", philo_id + 1);
+		printf("%zu %d is thinking\n", get_time() - program->start_time, philo_id + 1);
+	}
+	return (NULL);
+}
+
+void	*waiter(void *program_ptr)
+{
+	int				i;
+	size_t			time;
+	t_program		*program;
+
+	program = (t_program *)program_ptr;
+	while (1)
+	{
+		i = 0;
+		time = get_time();
+		while (i < program->philos_num)
+		{
+			if ((time - program->last_meal_time[i]) > program->time_to_die)
+			{
+				printf("%zu %d died\n", time - program->start_time - 1, i + 1);
+				program->dead_flag = 1;
+				return (NULL);
+			}
+			i++;
+		}
 	}
 	return (NULL);
 }
@@ -59,12 +77,15 @@ int	main(int argc, char **argv)
 	t_hack				hack;
 
 	i = 0;
-	if (argc != 5 || argc != 6 || invalid_args(argc, argv))
+	if ((argc != 5 && argc != 6) || invalid_args(argc, argv))
 		return (print_error());
-	parse_args(program, argc, argv);
+	parse_args(&program, argc, argv);
+	program.start_time = get_time();
 	while (i < program.philos_num)
-		(pthread_mutex_init(&program.forks[i], NULL),
-			gettimeofday(&program.last_meal_time[i++], NULL));
+	{
+		pthread_mutex_init(&program.forks[i], NULL);
+		program.last_meal_time[i++] = get_time();
+	}
 	i = 0;
 	while (i < program.philos_num)
 	{
@@ -74,6 +95,7 @@ int	main(int argc, char **argv)
 		pthread_create(&program.philos[i], NULL, philosopher, &hack);
 		i++;
 	}
+	pthread_create(&program.waiter, NULL, waiter, &program);
 	i = 0;
 	while (i < program.philos_num)
 		pthread_join(program.philos[i++], NULL);

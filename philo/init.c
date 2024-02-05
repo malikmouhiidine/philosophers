@@ -12,14 +12,14 @@
 
 #include "philo.h"
 
-void	parse_args(t_program program, int argc, char **argv)
+void	parse_args(t_program *program, int argc, char **argv)
 {
-	program.philos_num = ft_atoi(argv[1]);
-	program.time_to_die = ft_atoi(argv[2]);
-	program.time_to_eat = ft_atoi(argv[3]);
-	program.time_to_sleep = ft_atoi(argv[4]);
+	program->philos_num = ft_atoi(argv[1]);
+	program->time_to_die = ft_atoi(argv[2]);
+	program->time_to_eat = ft_atoi(argv[3]);
+	program->time_to_sleep = ft_atoi(argv[4]);
 	if (argc == 6)
-		program.philos_meals = ft_atoi(argv[5]);
+		program->philos_meals = ft_atoi(argv[5]);
 	else
-		program.philos_meals = -1;
+		program->philos_meals = -1;
 }
