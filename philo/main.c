@@ -6,7 +6,7 @@
 /*   By: mmouhiid <mmouhiid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 10:57:15 by mmouhiid          #+#    #+#             */
-/*   Updated: 2024/02/05 12:32:18 by mmouhiid         ###   ########.fr       */
+/*   Updated: 2024/02/05 12:55:54 by mmouhiid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,33 +19,16 @@ void	*philosopher(void *hack)
 
 	philo_id = *((int *)(((t_hack *)hack)->philo_id_ptr));
 	program = ((t_program *)(((t_hack *)hack)->program_ptr));
+	while (!program->ready)
+		;
+	if (philo_id % 2 != 0)
+		msleep(1);
 	while (!program->dead_flag)
 	{
-		pthread_mutex_lock(&program->forks[philo_id]);
-		if (!program->dead_flag)
-			printf("%zu %d has taken a fork\n", get_time() - program->start_time, philo_id + 1);
-		if (program->philos_num == 1)
-		{
-			while (!program->dead_flag)
-				;
+		if (eating(philo_id, program) == -1)
 			return (NULL);
-		}
-		pthread_mutex_lock(&program->forks[(philo_id + 1)
-			% program->philos_num]);
-		if (!program->dead_flag)
-			printf("%zu %d has taken a fork\n", get_time() - program->start_time, philo_id + 1);
-		program->last_meal_time[philo_id] = get_time();
-		if (!program->dead_flag)
-			printf("%zu %d is eating\n", get_time() - program->start_time, philo_id + 1);
-		msleep(program->time_to_eat);
-		pthread_mutex_unlock(&program->forks[(philo_id + 1)
-			% program->philos_num]);
-		pthread_mutex_unlock(&program->forks[philo_id]);
-		if (!program->dead_flag)
-			printf("%zu %d is sleeping\n", get_time() - program->start_time, philo_id + 1);
-		msleep(program->time_to_sleep);
-		if (!program->dead_flag)
-			printf("%zu %d is thinking\n", get_time() - program->start_time, philo_id + 1);
+		sleeping(philo_id, program);
+		thinking(philo_id, program);
 	}
 	return (NULL);
 }
@@ -92,6 +75,7 @@ int	main(int argc, char **argv)
 		program.last_meal_time[i++] = get_time();
 	}
 	i = 0;
+	program.ready = 0;
 	while (i < program.philos_num)
 	{
 		program.philos_ids[i] = i;
@@ -100,6 +84,7 @@ int	main(int argc, char **argv)
 		pthread_create(&program.philos[i], NULL, philosopher, &hack);
 		i++;
 	}
+	program.ready = 1;
 	pthread_create(&program.waiter, NULL, waiter, &program);
 	i = 0;
 	while (i < program.philos_num)

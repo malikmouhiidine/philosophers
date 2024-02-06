@@ -20,18 +20,6 @@ size_t	get_time(void)
 	return ((size_t)(current_time.tv_sec * 1000 + current_time.tv_usec / 1000));
 }
 
-// the while for handling 
-// any interruptions and retry
-int	msleep(size_t msec)
-{
-	size_t	time;
-
-	time = get_time();
-	while (get_time() - time < msec)
-		usleep(500);
-	return (0);
-}
-
 int	ft_atoi(const char *nptr)
 {
 	int	sign;

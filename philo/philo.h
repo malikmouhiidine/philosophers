@@ -6,7 +6,7 @@
 /*   By: mmouhiid <mmouhiid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 10:58:12 by mmouhiid          #+#    #+#             */
-/*   Updated: 2024/02/05 11:25:07 by mmouhiid         ###   ########.fr       */
+/*   Updated: 2024/02/05 12:55:20 by mmouhiid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ typedef struct s_program
 	size_t			time_to_eat;
 	size_t			time_to_sleep;
 	size_t			start_time;
+	int				ready;
 	int				philos_meals;
 	int				philos_ids[MAX_PHILOS];
 	size_t			last_meal_time[MAX_PHILOS];
@@ -46,3 +47,6 @@ int		print_error(void);
 void	parse_args(t_program *program, int argc, char **argv);
 int		msleep(size_t msec);
 size_t	get_time(void);
+int		eating(int philo_id, t_program *program);
+void	sleeping(int philo_id, t_program *program);
+void	thinking(int philo_id, t_program *program);
