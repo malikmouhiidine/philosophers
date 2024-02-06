@@ -62,7 +62,8 @@ int	invalid_args(int argc, char **argv)
 	if (ft_atoi(argv[1]) <= 0 || !valid_arg(argv[1])
 		|| ft_atoi(argv[2]) <= 0 || !valid_arg(argv[2])
 		|| ft_atoi(argv[3]) <= 0 || !valid_arg(argv[3])
-		|| (argc == 6 && (ft_atoi(argv[4]) <= 0 || !valid_arg(argv[4]))))
+		|| ft_atoi(argv[4]) <= 0 || !valid_arg(argv[4])
+		|| (argc == 6 && (ft_atoi(argv[5]) <= 0 || !valid_arg(argv[5]))))
 		return (1);
 	return (0);
 }
@@ -70,5 +71,5 @@ int	invalid_args(int argc, char **argv)
 int	print_error(void)
 {
 	printf("Invalid argument(s)\n");
-	return (1);
+	return (-1);
 }

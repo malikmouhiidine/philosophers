@@ -6,7 +6,7 @@
 /*   By: mmouhiid <mmouhiid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 10:57:15 by mmouhiid          #+#    #+#             */
-/*   Updated: 2024/02/06 11:23:43 by mmouhiid         ###   ########.fr       */
+/*   Updated: 2024/02/06 11:51:54 by mmouhiid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,22 +61,31 @@ void	*waiter(void *program_ptr)
 	return (NULL);
 }
 
+int	init(t_program *program, int argc, char **argv)
+{
+	int	i;
+
+	i = 0;
+	if ((argc != 5 && argc != 6) || invalid_args(argc, argv))
+		return (print_error());
+	parse_args(program, argc, argv);
+	program->start_time = get_time();
+	while (i < program->philos_num)
+	{
+		pthread_mutex_init(&program->forks[i], NULL);
+		program->last_meal_time[i++] = get_time();
+	}
+	return (0);
+}
+
 int	main(int argc, char **argv)
 {
 	int					i;
 	t_program			program;
 	t_hack				hack[MAX_PHILOS];
 
-	i = 0;
-	if ((argc != 5 && argc != 6) || invalid_args(argc, argv))
-		return (print_error());
-	parse_args(&program, argc, argv);
-	program.start_time = get_time();
-	while (i < program.philos_num)
-	{
-		pthread_mutex_init(&program.forks[i], NULL);
-		program.last_meal_time[i++] = get_time();
-	}
+	if (init(&program, argc, argv) == -1)
+		return (1);
 	i = 0;
 	program.ready = 0;
 	while (i < program.philos_num)
