@@ -6,7 +6,7 @@
 /*   By: mmouhiid <mmouhiid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 10:57:15 by mmouhiid          #+#    #+#             */
-/*   Updated: 2024/02/05 12:55:54 by mmouhiid         ###   ########.fr       */
+/*   Updated: 2024/02/06 11:23:43 by mmouhiid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,18 +15,21 @@
 void	*philosopher(void *hack)
 {
 	int				philo_id;
+	int				philo_meals;
 	t_program		*program;
 
+	philo_meals = 0;
 	philo_id = *((int *)(((t_hack *)hack)->philo_id_ptr));
 	program = ((t_program *)(((t_hack *)hack)->program_ptr));
 	while (!program->ready)
 		;
 	if (philo_id % 2 != 0)
 		msleep(1);
-	while (!program->dead_flag)
+	while (!program->dead_flag && program->philos_meals != philo_meals)
 	{
 		if (eating(philo_id, program) == -1)
 			return (NULL);
+		philo_meals++;
 		sleeping(philo_id, program);
 		thinking(philo_id, program);
 	}
@@ -43,9 +46,9 @@ void	*waiter(void *program_ptr)
 	while (1)
 	{
 		i = 0;
-		time = get_time();
 		while (i < program->philos_num)
 		{
+			time = get_time();
 			if ((time - program->last_meal_time[i]) > program->time_to_die)
 			{
 				printf("%zu %d died\n", time - program->start_time, i + 1);
@@ -62,7 +65,7 @@ int	main(int argc, char **argv)
 {
 	int					i;
 	t_program			program;
-	t_hack				hack;
+	t_hack				hack[MAX_PHILOS];
 
 	i = 0;
 	if ((argc != 5 && argc != 6) || invalid_args(argc, argv))
@@ -79,9 +82,9 @@ int	main(int argc, char **argv)
 	while (i < program.philos_num)
 	{
 		program.philos_ids[i] = i;
-		hack.program_ptr = &program;
-		hack.philo_id_ptr = &program.philos_ids[i];
-		pthread_create(&program.philos[i], NULL, philosopher, &hack);
+		hack[i].program_ptr = &program;
+		hack[i].philo_id_ptr = &program.philos_ids[i];
+		pthread_create(&program.philos[i], NULL, philosopher, &hack[i]);
 		i++;
 	}
 	program.ready = 1;

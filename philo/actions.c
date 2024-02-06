@@ -6,7 +6,7 @@
 /*   By: mmouhiid <mmouhiid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 10:57:15 by mmouhiid          #+#    #+#             */
-/*   Updated: 2024/02/05 12:55:54 by mmouhiid         ###   ########.fr       */
+/*   Updated: 2024/02/06 11:20:11 by mmouhiid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ int	eating(int philo_id, t_program *program)
 	{
 		while (!program->dead_flag)
 			;
+		pthread_mutex_unlock(&program->forks[philo_id]);
 		return (-1);
 	}
 	pthread_mutex_lock(&program->forks[(philo_id + 1)
