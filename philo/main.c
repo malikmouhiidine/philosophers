@@ -15,10 +15,8 @@
 void	*philosopher(void *hack)
 {
 	int				philo_id;
-	int				philo_meals;
 	t_program		*program;
 
-	philo_meals = 0;
 	philo_id = *((int *)(((t_hack *)hack)->philo_id_ptr));
 	program = ((t_program *)(((t_hack *)hack)->program_ptr));
 	while (!program->ready)
@@ -26,12 +24,12 @@ void	*philosopher(void *hack)
 	if (philo_id % 2 != 0)
 		msleep(1);
 	while (!pthread_mutex_lock(&program->dead_flag_mutex) && !program->dead_flag
-		&& program->philos_meals != philo_meals
+		&& program->philos_meals != program->philo_meals[philo_id]
 		&& !pthread_mutex_unlock(&program->dead_flag_mutex))
 	{
 		if (eating(philo_id, program) == -1)
 			return (NULL);
-		philo_meals++;
+		program->philo_meals[philo_id]++;
 		sleeping(philo_id, program);
 		thinking(philo_id, program);
 	}
@@ -55,14 +53,14 @@ void	*waiter(void *program_ptr)
 			pthread_mutex_lock(&program->last_meal_time_mutex[i]);
 			if ((time - program->last_meal_time[i]) > program->time_to_die)
 			{
-				my_print("%zu %d died\n", i + 1, program, 1);
+				if (program->philos_meals != program->philo_meals[i])
+					my_print("%zu %d died\n", i + 1, program, 1);
 				pthread_mutex_lock(&program->dead_flag_mutex);
 				program->dead_flag = 1;
 				pthread_mutex_unlock(&program->dead_flag_mutex);
 				return (NULL);
 			}
-			pthread_mutex_unlock(&program->last_meal_time_mutex[i]);
-			i++;
+			pthread_mutex_unlock(&program->last_meal_time_mutex[i++]);
 		}
 	}
 	return (NULL);

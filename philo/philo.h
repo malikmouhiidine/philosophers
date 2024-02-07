@@ -29,6 +29,7 @@ typedef struct s_program
 	size_t			start_time;
 	int				ready;
 	int				philos_meals;
+	int				philo_meals[MAX_PHILOS];
 	int				philos_ids[MAX_PHILOS];
 	size_t			last_meal_time[MAX_PHILOS];
 	pthread_mutex_t	last_meal_time_mutex[MAX_PHILOS];
