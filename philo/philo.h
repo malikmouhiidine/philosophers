@@ -22,6 +22,7 @@ typedef struct s_program
 {
 	int				philos_num;
 	int				dead_flag;
+	pthread_mutex_t	dead_flag_mutex;
 	size_t			time_to_die;
 	size_t			time_to_eat;
 	size_t			time_to_sleep;
@@ -30,6 +31,8 @@ typedef struct s_program
 	int				philos_meals;
 	int				philos_ids[MAX_PHILOS];
 	size_t			last_meal_time[MAX_PHILOS];
+	pthread_mutex_t	last_meal_time_mutex[MAX_PHILOS];
+	pthread_mutex_t	print_mutex;
 	pthread_t		waiter;
 	pthread_t		philos[MAX_PHILOS];
 	pthread_mutex_t	forks[MAX_PHILOS];
@@ -50,3 +53,6 @@ size_t	get_time(void);
 int		eating(int philo_id, t_program *program);
 void	sleeping(int philo_id, t_program *program);
 void	thinking(int philo_id, t_program *program);
+void	my_print(const char *str, int philo_id,
+			t_program *program, int close);
+void	clean(t_program *program);

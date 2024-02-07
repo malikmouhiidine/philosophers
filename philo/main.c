@@ -6,7 +6,7 @@
 /*   By: mmouhiid <mmouhiid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 10:57:15 by mmouhiid          #+#    #+#             */
-/*   Updated: 2024/02/06 11:51:54 by mmouhiid         ###   ########.fr       */
+/*   Updated: 2024/02/07 10:24:01 by mmouhiid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,9 @@ void	*philosopher(void *hack)
 		;
 	if (philo_id % 2 != 0)
 		msleep(1);
-	while (!program->dead_flag && program->philos_meals != philo_meals)
+	while (!pthread_mutex_lock(&program->dead_flag_mutex) && !program->dead_flag
+		&& program->philos_meals != philo_meals
+		&& !pthread_mutex_unlock(&program->dead_flag_mutex))
 	{
 		if (eating(philo_id, program) == -1)
 			return (NULL);
@@ -33,6 +35,7 @@ void	*philosopher(void *hack)
 		sleeping(philo_id, program);
 		thinking(philo_id, program);
 	}
+	pthread_mutex_unlock(&program->dead_flag_mutex);
 	return (NULL);
 }
 
@@ -49,12 +52,16 @@ void	*waiter(void *program_ptr)
 		while (i < program->philos_num)
 		{
 			time = get_time();
+			pthread_mutex_lock(&program->last_meal_time_mutex[i]);
 			if ((time - program->last_meal_time[i]) > program->time_to_die)
 			{
-				printf("%zu %d died\n", time - program->start_time, i + 1);
+				my_print("%zu %d died\n", i + 1, program, 1);
+				pthread_mutex_lock(&program->dead_flag_mutex);
 				program->dead_flag = 1;
+				pthread_mutex_unlock(&program->dead_flag_mutex);
 				return (NULL);
 			}
+			pthread_mutex_unlock(&program->last_meal_time_mutex[i]);
 			i++;
 		}
 	}
@@ -72,6 +79,9 @@ int	init(t_program *program, int argc, char **argv)
 	program->start_time = get_time();
 	while (i < program->philos_num)
 	{
+		pthread_mutex_init(&program->dead_flag_mutex, NULL);
+		pthread_mutex_init(&program->print_mutex, NULL);
+		pthread_mutex_init(&program->last_meal_time_mutex[i], NULL);
 		pthread_mutex_init(&program->forks[i], NULL);
 		program->last_meal_time[i++] = get_time();
 	}
@@ -100,9 +110,8 @@ int	main(int argc, char **argv)
 	pthread_create(&program.waiter, NULL, waiter, &program);
 	i = 0;
 	while (i < program.philos_num)
-		pthread_join(program.philos[i++], NULL);
-	i = 0;
-	while (i < program.philos_num)
-		pthread_mutex_destroy(&program.forks[i++]);
+		pthread_detach(program.philos[i++]);
+	pthread_join(program.waiter, NULL);
+	clean(&program);
 	return (0);
 }

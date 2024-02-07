@@ -15,25 +15,24 @@
 int	eating(int philo_id, t_program *program)
 {
 	pthread_mutex_lock(&program->forks[philo_id]);
-	if (!program->dead_flag)
-		printf("%zu %d has taken a fork\n", get_time()
-			- program->start_time, philo_id + 1);
+	my_print("%zu %d has taken a fork\n", philo_id + 1, program, 0);
 	if (program->philos_num == 1)
 	{
-		while (!program->dead_flag)
+		while (!pthread_mutex_lock(&program->dead_flag_mutex)
+			&& !program->dead_flag
+			&& !pthread_mutex_unlock(&program->dead_flag_mutex))
 			;
+		pthread_mutex_unlock(&program->dead_flag_mutex);
 		pthread_mutex_unlock(&program->forks[philo_id]);
 		return (-1);
 	}
 	pthread_mutex_lock(&program->forks[(philo_id + 1)
 		% program->philos_num]);
-	if (!program->dead_flag)
-		printf("%zu %d has taken a fork\n", get_time()
-			- program->start_time, philo_id + 1);
+	my_print("%zu %d has taken a fork\n", philo_id + 1, program, 0);
+	pthread_mutex_lock(&program->last_meal_time_mutex[philo_id]);
 	program->last_meal_time[philo_id] = get_time();
-	if (!program->dead_flag)
-		printf("%zu %d is eating\n", get_time()
-			- program->start_time, philo_id + 1);
+	pthread_mutex_unlock(&program->last_meal_time_mutex[philo_id]);
+	my_print("%zu %d is eating\n", philo_id + 1, program, 0);
 	msleep(program->time_to_eat);
 	pthread_mutex_unlock(&program->forks[(philo_id + 1)
 		% program->philos_num]);
@@ -43,17 +42,28 @@ int	eating(int philo_id, t_program *program)
 
 void	sleeping(int philo_id, t_program *program)
 {
-	if (!program->dead_flag)
-		printf("%zu %d is sleeping\n", get_time()
-			- program->start_time, philo_id + 1);
+	my_print("%zu %d is sleeping\n", philo_id + 1, program, 0);
 	msleep(program->time_to_sleep);
 }
 
 void	thinking(int philo_id, t_program *program)
 {
-	if (!program->dead_flag)
-		printf("%zu %d is thinking\n", get_time()
-			- program->start_time, philo_id + 1);
+	my_print("%zu %d is thinking\n", philo_id + 1, program, 0);
+}
+
+void	my_print(const char *str, int philo_id,
+		t_program *program, int close)
+{
+	if (!pthread_mutex_lock(&program->dead_flag_mutex)
+		&& program->dead_flag
+		&& !pthread_mutex_unlock(&program->dead_flag_mutex))
+		return ;
+	pthread_mutex_unlock(&program->dead_flag_mutex);
+	pthread_mutex_lock(&program->print_mutex);
+	printf(str, get_time()
+		- program->start_time, philo_id + 1);
+	if (!close)
+		pthread_mutex_unlock(&program->print_mutex);
 }
 
 // the while for handling 
