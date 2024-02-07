@@ -31,6 +31,7 @@ int	eating(int philo_id, t_program *program)
 	my_print("%zu %d has taken a fork\n", philo_id + 1, program, 0);
 	pthread_mutex_lock(&program->last_meal_time_mutex[philo_id]);
 	program->last_meal_time[philo_id] = get_time();
+	program->philo_meals[philo_id]++;
 	pthread_mutex_unlock(&program->last_meal_time_mutex[philo_id]);
 	my_print("%zu %d is eating\n", philo_id + 1, program, 0);
 	msleep(program->time_to_eat);

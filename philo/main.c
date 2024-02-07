@@ -29,7 +29,6 @@ void	*philosopher(void *hack)
 	{
 		if (eating(philo_id, program) == -1)
 			return (NULL);
-		program->philo_meals[philo_id]++;
 		sleeping(philo_id, program);
 		thinking(philo_id, program);
 	}
