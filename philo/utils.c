@@ -6,7 +6,7 @@
 /*   By: mmouhiid <mmouhiid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/02 11:00:40 by mmouhiid          #+#    #+#             */
-/*   Updated: 2024/02/05 11:24:01 by mmouhiid         ###   ########.fr       */
+/*   Updated: 2024/02/08 16:39:02 by mmouhiid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,8 @@ size_t	get_time(void)
 
 int	ft_atoi(const char *nptr)
 {
-	int	sign;
-	int	result;
+	int		sign;
+	long	result;
 
 	sign = 1;
 	result = 0;
@@ -37,6 +37,8 @@ int	ft_atoi(const char *nptr)
 	}
 	while (*nptr >= '0' && *nptr <= '9')
 	{
+		if (result > INT_MAX)
+			return (-1);
 		result = (result * 10) + (*nptr - '0');
 		nptr++;
 	}
@@ -59,7 +61,7 @@ int	valid_arg(char *arg)
 
 int	invalid_args(int argc, char **argv)
 {
-	if (ft_atoi(argv[1]) <= 0 || !valid_arg(argv[1])
+	if (ft_atoi(argv[1]) <= 0 || ft_atoi(argv[1]) > 200 || !valid_arg(argv[1])
 		|| ft_atoi(argv[2]) <= 0 || !valid_arg(argv[2])
 		|| ft_atoi(argv[3]) <= 0 || !valid_arg(argv[3])
 		|| ft_atoi(argv[4]) <= 0 || !valid_arg(argv[4])
