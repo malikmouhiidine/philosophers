@@ -62,7 +62,7 @@ void	my_print(const char *str, int philo_id,
 	pthread_mutex_unlock(&program->dead_flag_mutex);
 	pthread_mutex_lock(&program->print_mutex);
 	printf(str, get_time()
-		- program->start_time, philo_id + 1);
+		- program->start_time, philo_id);
 	if (!close)
 		pthread_mutex_unlock(&program->print_mutex);
 }
